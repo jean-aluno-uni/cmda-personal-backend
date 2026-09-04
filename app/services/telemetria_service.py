@@ -15,15 +15,15 @@ _RANGE_PARA_TIMEDELTA = {
 
 
 class TelemetriaService:
-    """RN-004/RN-005: leituras vinculadas a um veículo específico; se o veículo não está
-    conectado, o sistema informa a indisponibilidade em vez de inventar dado."""
-
     def __init__(self, db: Session):
+        self.db = db
         self.repo = LeituraRepository(db)
 
     def registrar_leitura(self, veiculo_id: int, dados: LeituraCreate):
         payload = dados.model_dump(exclude_none=True)
-        return self.repo.create(veiculo_id, payload)
+        leitura = self.repo.create(veiculo_id, payload)
+        self.db.commit()
+        return leitura
 
     def obter_ultima(self, veiculo: Veiculo) -> TelemetriaLatestOut:
         if not veiculo.conectado:

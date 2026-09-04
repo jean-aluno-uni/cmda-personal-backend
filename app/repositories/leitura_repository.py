@@ -16,8 +16,7 @@ class LeituraRepository:
         dados["data_hora"] = to_utc_naive(dados["data_hora"]) if dados.get("data_hora") else utcnow()
         leitura = Leitura(veiculo_id=veiculo_id, **dados)
         self.db.add(leitura)
-        self.db.commit()
-        self.db.refresh(leitura)
+        self.db.flush()
         return leitura
 
     def get_latest(self, veiculo_id: int) -> Leitura | None:

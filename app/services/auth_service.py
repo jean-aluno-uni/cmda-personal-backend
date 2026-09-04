@@ -22,10 +22,6 @@ logger = logging.getLogger("cmda.auth")
 
 
 class AuthService:
-    """Regras de negócio de autenticação: RN-001 (acesso só autenticado), RN-002 (conta
-    individual), RN-003 (recuperação de senha via código/token temporário) e RN-012
-    (logout encerra a sessão)."""
-
     def __init__(self, db: Session):
         self.db = db
         self.usuarios = UsuarioRepository(db)
@@ -33,6 +29,7 @@ class AuthService:
         self.revoked = RevokedTokenRepository(db)
 
     def login(self, email: str, senha: str) -> tuple[Usuario, str]:
+        # TODO: colocar rate limit aqui e no otp/verify em algum momento
         usuario = self.usuarios.get_by_email(email)
         if usuario is None or not verify_password(senha, usuario.senha_hash):
             raise UnauthorizedError("Credenciais inválidas")
@@ -48,15 +45,14 @@ class AuthService:
         expira_em = utcnow() + timedelta(minutes=settings.otp_expire_minutes)
         self.resets.create(usuario.id, codigo, expira_em)
 
-        # Requisito da Fase 01: não precisa enviar e-mail de verdade, basta logar.
         logger.info("OTP de recuperação de senha para %s: %s", usuario.email, codigo)
 
     def forgot_password(self, email: str) -> None:
         usuario = self.usuarios.get_by_email(email)
         if usuario is not None:
             self._emitir_novo_otp(usuario)
-        # Resposta sempre "sucesso" independente de o e-mail existir, para não
-        # revelar quais e-mails têm conta (evita enumeração de usuários).
+        self.db.commit()
+        # resposta e sempre sucesso mesmo se o email nao existir
 
     def resend_otp(self, email: str) -> None:
         self.forgot_password(email)
@@ -73,6 +69,7 @@ class AuthService:
         reset_token = generate_reset_token()
         expira_em = utcnow() + timedelta(minutes=settings.reset_token_expire_minutes)
         self.resets.definir_reset_token(pendente, reset_token, expira_em)
+        self.db.commit()
         return reset_token
 
     def reset_password(self, reset_token: str, nova_senha: str) -> None:
@@ -82,8 +79,10 @@ class AuthService:
 
         usuario = self.usuarios.get_by_id(registro.usuario_id)
         self.usuarios.update_senha(usuario, hash_password(nova_senha))
-        self.resets.marcar_usado(registro)  # token de uso único (RN-003)
+        self.resets.marcar_usado(registro)
+        self.db.commit()
 
     def logout(self, jti: str, exp_timestamp: int) -> None:
         expira_em = to_utc_naive(datetime.fromtimestamp(exp_timestamp, tz=timezone.utc))
         self.revoked.revoke(jti, expira_em)
+        self.db.commit()

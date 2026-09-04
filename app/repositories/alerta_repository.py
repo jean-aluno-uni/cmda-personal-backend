@@ -11,15 +11,6 @@ class AlertaRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def create(self, veiculo_id: int, dados: dict) -> Alerta:
-        dados = dict(dados)
-        dados["data_hora"] = to_utc_naive(dados["data_hora"]) if dados.get("data_hora") else utcnow()
-        alerta = Alerta(veiculo_id=veiculo_id, **dados)
-        self.db.add(alerta)
-        self.db.commit()
-        self.db.refresh(alerta)
-        return alerta
-
     def list_by_periodo(self, veiculo_id: int, desde: datetime, page: int, page_size: int) -> tuple[list[Alerta], int]:
         base_stmt = select(Alerta).where(Alerta.veiculo_id == veiculo_id, Alerta.data_hora >= desde)
 
@@ -31,10 +22,18 @@ class AlertaRepository:
         items = list(self.db.execute(stmt).scalars().all())
         return items, total
 
-    def resumo_por_origem(self, veiculo_id: int, desde: datetime) -> list[tuple[str, int]]:
+    def resumo_por_origem(self, veiculo_id: int, desde: datetime):
         stmt = (
             select(Alerta.origem, func.count().label("total"))
             .where(Alerta.veiculo_id == veiculo_id, Alerta.data_hora >= desde)
             .group_by(Alerta.origem)
         )
         return list(self.db.execute(stmt).all())
+
+    def create(self, veiculo_id: int, dados: dict) -> Alerta:
+        dados = dict(dados)
+        dados["data_hora"] = to_utc_naive(dados["data_hora"]) if dados.get("data_hora") else utcnow()
+        alerta = Alerta(veiculo_id=veiculo_id, **dados)
+        self.db.add(alerta)
+        self.db.flush()
+        return alerta

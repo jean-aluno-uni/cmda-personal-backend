@@ -12,7 +12,7 @@ class RevokedTokenRepository:
 
     def revoke(self, jti: str, expira_em: datetime) -> None:
         self.db.add(RevokedToken(jti=jti, expira_em=expira_em))
-        self.db.commit()
+        self.db.flush()
 
     def is_revoked(self, jti: str) -> bool:
         stmt = select(RevokedToken.id).where(RevokedToken.jti == jti)

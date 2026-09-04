@@ -14,8 +14,7 @@ class PasswordResetRepository:
     def create(self, usuario_id: int, codigo_otp: str, expira_em: datetime) -> PasswordReset:
         registro = PasswordReset(usuario_id=usuario_id, codigo_otp=codigo_otp, expira_em=expira_em)
         self.db.add(registro)
-        self.db.commit()
-        self.db.refresh(registro)
+        self.db.flush()
         return registro
 
     def get_ultimo_pendente(self, usuario_id: int) -> PasswordReset | None:
@@ -33,12 +32,10 @@ class PasswordResetRepository:
 
     def marcar_usado(self, registro: PasswordReset) -> None:
         registro.usado = True
-        self.db.commit()
 
     def definir_reset_token(self, registro: PasswordReset, reset_token: str, expira_em: datetime) -> None:
         registro.reset_token = reset_token
         registro.expira_em = expira_em
-        self.db.commit()
 
     @staticmethod
     def esta_expirado(registro: PasswordReset) -> bool:

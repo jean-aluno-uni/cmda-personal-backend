@@ -5,15 +5,14 @@ from app.schemas.diagnostico import DiagnosticoCreate, DiagnosticoItemOut, Diagn
 
 
 class DiagnosticoService:
-    """RN-008/RN-009: diagnósticos organizados por indicador/valor/observação, com
-    linguagem acessível ao motorista comum. RN-011: sempre vinculados a um veículo."""
-
     def __init__(self, db: Session):
+        self.db = db
         self.repo = DiagnosticoRepository(db)
 
     def registrar_diagnostico(self, veiculo_id: int, dados: DiagnosticoCreate) -> DiagnosticoOut:
         itens = [item.model_dump(exclude_none=True) for item in dados.itens]
         diagnostico = self.repo.create(veiculo_id, dados.data_hora, itens)
+        self.db.commit()
         return self._to_out(diagnostico)
 
     def obter_diagnostico(self, veiculo_id: int, indicadores: list[str] | None) -> DiagnosticoOut | None:

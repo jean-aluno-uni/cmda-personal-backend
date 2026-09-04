@@ -18,12 +18,9 @@ class UsuarioRepository:
     def create(self, nome_usuario: str, email: str, senha_hash: str, role: str = "motorista") -> Usuario:
         usuario = Usuario(nome_usuario=nome_usuario, email=email, senha_hash=senha_hash, role=role)
         self.db.add(usuario)
-        self.db.commit()
-        self.db.refresh(usuario)
+        self.db.flush()
         return usuario
 
     def update_senha(self, usuario: Usuario, senha_hash: str) -> Usuario:
         usuario.senha_hash = senha_hash
-        self.db.commit()
-        self.db.refresh(usuario)
         return usuario

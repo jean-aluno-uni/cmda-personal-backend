@@ -12,8 +12,7 @@ _RANGE_PARA_TIMEDELTA = {
     "30d": timedelta(days=30),
 }
 
-# Mesma paleta já usada no frontend mock (js/dados.js -> origemAlertas), reaproveitada
-# aqui para manter o contrato visual do donut chart de origem dos alertas.
+# mesmas cores do js/dados.js do frontend mock
 _COR_POR_ORIGEM = {
     "Motor": "#C2182B",
     "Transmissao": "#3B82F6",
@@ -24,16 +23,15 @@ _COR_PADRAO = "#9CA3AF"
 
 
 class AlertaService:
-    """RN-004/RN-011: alertas sempre vinculados a um veículo específico (posse já
-    validada na dependency de rota). RN-007: cada alerta carrega origem, descrição,
-    nível e situação suficientes para o usuário entender a ocorrência."""
-
     def __init__(self, db: Session):
+        self.db = db
         self.repo = AlertaRepository(db)
 
     def registrar_alerta(self, veiculo_id: int, dados: AlertaCreate):
         payload = dados.model_dump(exclude_none=True)
-        return self.repo.create(veiculo_id, payload)
+        alerta = self.repo.create(veiculo_id, payload)
+        self.db.commit()
+        return alerta
 
     @staticmethod
     def _desde(period: str) -> datetime:

@@ -10,15 +10,6 @@ class DiagnosticoRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def create(self, veiculo_id: int, data_hora, itens: list[dict]) -> Diagnostico:
-        diagnostico = Diagnostico(veiculo_id=veiculo_id)
-        diagnostico.data_hora = to_utc_naive(data_hora) if data_hora is not None else utcnow()
-        diagnostico.itens = [DiagnosticoItem(**item) for item in itens]
-        self.db.add(diagnostico)
-        self.db.commit()
-        self.db.refresh(diagnostico)
-        return diagnostico
-
     def get_latest(self, veiculo_id: int) -> Diagnostico | None:
         stmt = (
             select(Diagnostico)
@@ -28,3 +19,11 @@ class DiagnosticoRepository:
             .limit(1)
         )
         return self.db.execute(stmt).scalar_one_or_none()
+
+    def create(self, veiculo_id: int, data_hora, itens: list[dict]) -> Diagnostico:
+        diagnostico = Diagnostico(veiculo_id=veiculo_id)
+        diagnostico.data_hora = to_utc_naive(data_hora) if data_hora is not None else utcnow()
+        diagnostico.itens = [DiagnosticoItem(**item) for item in itens]
+        self.db.add(diagnostico)
+        self.db.flush()
+        return diagnostico
