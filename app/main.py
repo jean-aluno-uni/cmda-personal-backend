@@ -8,9 +8,7 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.exceptions import AppError
 
-# Requisito da Fase 01: o código OTP de recuperação de senha "não precisa enviar
-# e-mail de verdade, basta logar" -- garantimos aqui que os loggers da aplicação
-# (ex: app.services.auth_service) realmente aparecem no console do servidor.
+# log do OTP tem que aparecer no console (nao manda email de verdade)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)-8s [%(name)s] %(message)s")
 
 app = FastAPI(
@@ -22,7 +20,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
-    allow_credentials=True,
+    # so liga credentials se tiver origem especifica configurada (com "*" o browser recusa)
+    allow_credentials=settings.cors_origins_list != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
