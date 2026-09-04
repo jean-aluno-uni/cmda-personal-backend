@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_owned_vehicle
 from app.core.database import get_db
+from app.core.exceptions import NotFoundError
 from app.models.veiculo import Veiculo
 from app.schemas.diagnostico import DiagnosticoCreate, DiagnosticoOut
 from app.services.diagnostico_service import DiagnosticoService
@@ -19,7 +20,7 @@ def get_diagnostics(
     lista = [item.strip() for item in indicadores.split(",")] if indicadores else None
     diagnostico = DiagnosticoService(db).obter_diagnostico(veiculo.id, lista)
     if diagnostico is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Nenhum diagnóstico registrado para este veículo")
+        raise NotFoundError("Nenhum diagnóstico registrado para este veículo")
     return diagnostico
 
 
