@@ -9,8 +9,6 @@ _SPECIAL_CHARS = r"!@#$%^&*(),.?\":{}|<>"
 
 
 def validar_regras_senha(senha: str) -> list[str]:
-    """Mesmas 5 regras já exibidas hoje em login/nova-senha.html do frontend mock.
-    Retorna a lista de regras violadas (vazia se a senha for válida)."""
     erros = []
     if len(senha) < 8:
         erros.append("mínimo 8 caracteres")

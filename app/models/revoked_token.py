@@ -8,9 +8,6 @@ from app.core.timeutils import utcnow
 
 
 class RevokedToken(Base):
-    """Suporta RN-012: logout deve encerrar a sessão. JWT é stateless por padrão,
-    então mantemos aqui a lista de tokens (por jti) revogados antes da expiração natural."""
-
     __tablename__ = "revoked_tokens"
 
     id: Mapped[int] = mapped_column("RevokedTokenID", primary_key=True)

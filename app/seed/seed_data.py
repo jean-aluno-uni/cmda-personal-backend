@@ -130,9 +130,7 @@ def run() -> None:
         seed_alertas(db, veiculo_demo)
         seed_diagnostico(db, veiculo_demo)
 
-        # Segundo usuário/veículo: útil para testar manualmente a regra de posse
-        # (RN-004/RN-011) -- tentar acessar este veículo autenticado como o usuário demo
-        # deve retornar 403.
+        # segundo usuario so pra eu testar manualmente que um nao acessa veiculo do outro
         outro_usuario = get_or_create_usuario(db, "Outro Motorista", "outro@cmda.app", "Outro@1234")
         get_or_create_veiculo(
             db,

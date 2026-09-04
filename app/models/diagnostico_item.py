@@ -14,8 +14,6 @@ class DiagnosticoItem(Base):
     indicador: Mapped[str] = mapped_column("Indicador", String(60), nullable=False)
     valor: Mapped[str] = mapped_column("Valor", String(120), nullable=False)
     observacao: Mapped[str | None] = mapped_column("Observacao", String(255))
-    # Extensões ao ER original (Parte 18), necessárias para RF-013 (RN-008/RN-009):
-    # faixa de referência exibida ao lado do valor e flag indicando item fora do esperado.
     referencia: Mapped[str | None] = mapped_column("Referencia", String(60))
     alerta: Mapped[bool] = mapped_column("Alerta", Boolean, nullable=False, default=False)
 

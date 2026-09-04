@@ -8,8 +8,6 @@ from app.core.timeutils import utcnow
 
 
 class PasswordReset(Base):
-    """Suporta RN-003: recuperação de senha só avança após validar um código/token temporário."""
-
     __tablename__ = "password_resets"
 
     id: Mapped[int] = mapped_column("PasswordResetID", primary_key=True)

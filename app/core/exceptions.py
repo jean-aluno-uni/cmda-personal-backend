@@ -1,6 +1,4 @@
 class AppError(Exception):
-    """Erro de negócio base. Vira HTTPException nas rotas."""
-
     status_code = 400
 
     def __init__(self, message: str):

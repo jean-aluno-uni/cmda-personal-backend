@@ -2,10 +2,7 @@ from datetime import datetime, timezone
 
 
 def utcnow() -> datetime:
-    """Datetime UTC 'naive' (sem tzinfo), usado para gravar e comparar contra colunas
-    DATETIME do MySQL, que não guardam timezone. Mantém consistência entre o horário
-    calculado pela aplicação e o que fica persistido no banco (evita descompasso entre
-    `NOW()` do servidor MySQL, que reflete o relógio local do SO, e o UTC da aplicação)."""
+    # sem tzinfo pra bater com as colunas DATETIME do mysql
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 

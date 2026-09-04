@@ -8,8 +8,7 @@ import jwt
 from app.core.config import settings
 
 # --- senha ---
-# bcrypt tem limite de 72 bytes por senha; truncamos de forma segura e documentada
-# (senhas legítimas de usuário nunca chegam perto desse tamanho).
+# bcrypt so aceita 72 bytes, trunca pra nao quebrar
 _BCRYPT_MAX_BYTES = 72
 
 

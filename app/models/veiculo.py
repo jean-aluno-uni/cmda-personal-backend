@@ -17,9 +17,6 @@ class Veiculo(Base):
     placa: Mapped[str | None] = mapped_column("Placa", String(20))
     combustivel: Mapped[str | None] = mapped_column("Combustivel", String(20))
 
-    # Extensão ao ER original (documentada na Parte 18): necessária para RN-005
-    # (indisponibilidade de dados quando não há conexão ativa com o veículo) e
-    # para os endpoints de status/connect/disconnect que o frontend já espera.
     conectado: Mapped[bool] = mapped_column("Conectado", Boolean, nullable=False, default=False)
     ultima_conexao: Mapped[datetime | None] = mapped_column("UltimaConexao", DateTime)
 
