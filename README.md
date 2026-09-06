@@ -4,6 +4,75 @@ API do backend do **CMDA Personal** (Central de Mapeamento de Desempenho Automot
 
 Esta API é desacoplada de qualquer cliente específico: hoje serve o frontend web mockado do projeto, e foi desenhada para futuramente servir também o app mobile (Flutter), um painel administrativo web e um simulador de leituras de sensor, sem necessidade de reescrita.
 
+## Estrutura de arquivos
+
+```
+├── app/
+│   ├── main.py                       # Ponto de entrada da aplicação FastAPI
+│   ├── api/
+│   │   ├── deps.py                   # Dependências compartilhadas (auth, ownership de veículo)
+│   │   └── v1/
+│   │       ├── router.py             # Agregador das rotas da v1
+│   │       ├── auth.py                # Rotas de autenticação e recuperação de senha
+│   │       ├── users.py               # Rotas de usuário
+│   │       ├── vehicles.py            # Rotas de veículo
+│   │       ├── telemetry.py           # Rotas de telemetria (leituras)
+│   │       ├── alerts.py              # Rotas de alertas
+│   │       └── diagnostics.py         # Rotas de diagnóstico
+│   ├── core/
+│   │   ├── config.py                  # Configurações e variáveis de ambiente
+│   │   ├── database.py                # Conexão e sessão do banco (SQLAlchemy)
+│   │   ├── exceptions.py              # Exceções customizadas
+│   │   ├── security.py                # Hash de senha e JWT
+│   │   └── timeutils.py               # Utilitários de data/hora
+│   ├── models/                        # Mapeamento ORM das tabelas
+│   │   ├── usuario.py
+│   │   ├── veiculo.py
+│   │   ├── leitura.py
+│   │   ├── alerta.py
+│   │   ├── diagnostico.py
+│   │   ├── diagnostico_item.py
+│   │   ├── password_reset.py
+│   │   └── revoked_token.py
+│   ├── repositories/                  # Acesso a dados (SQLAlchemy puro)
+│   │   ├── usuario_repository.py
+│   │   ├── veiculo_repository.py
+│   │   ├── leitura_repository.py
+│   │   ├── alerta_repository.py
+│   │   ├── diagnostico_repository.py
+│   │   ├── password_reset_repository.py
+│   │   └── revoked_token_repository.py
+│   ├── schemas/                       # Validação de payloads (Pydantic)
+│   │   ├── usuario.py
+│   │   ├── veiculo.py
+│   │   ├── leitura.py
+│   │   ├── alerta.py
+│   │   ├── diagnostico.py
+│   │   ├── auth.py
+│   │   └── common.py
+│   ├── services/                      # Regras de negócio (RN-001 a RN-012)
+│   │   ├── auth_service.py
+│   │   ├── veiculo_service.py
+│   │   ├── telemetria_service.py
+│   │   ├── alerta_service.py
+│   │   └── diagnostico_service.py
+│   └── seed/
+│       └── seed_data.py               # Popula dados de demonstração
+├── alembic/
+│   ├── env.py                         # Configuração das migrations
+│   └── versions/                      # Histórico de migrations do schema
+├── alembic.ini                        # Configuração do Alembic
+├── tests/
+│   ├── conftest.py                    # Fixtures (SQLite em memória)
+│   ├── test_auth.py                   # Login, recuperação de senha, logout
+│   ├── test_vehicles_ownership.py     # Regra de posse de veículo (RN-004/RN-011)
+│   ├── test_telemetry.py              # Telemetria e estado de conexão (RN-005)
+│   └── test_alerts.py                 # Fluxo de alertas
+├── requirements.txt                   # Dependências do projeto
+├── .env.example                       # Modelo de variáveis de ambiente
+└── README.md
+```
+
 ## Stack
 
 - **FastAPI** — framework web assíncrono, com documentação interativa automática (Swagger em `/docs`).
