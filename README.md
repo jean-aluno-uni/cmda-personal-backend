@@ -66,6 +66,7 @@ Esta API é desacoplada de qualquer cliente específico: hoje serve o frontend w
 │   ├── conftest.py                    # Fixtures (SQLite em memória)
 │   ├── test_auth.py                   # Login, recuperação de senha, logout
 │   ├── test_vehicles_ownership.py     # Regra de posse de veículo (RN-004/RN-011)
+│   ├── test_vehicles_list.py          # GET /vehicles (só veículos do usuário logado)
 │   ├── test_telemetry.py              # Telemetria e estado de conexão (RN-005)
 │   └── test_alerts.py                 # Fluxo de alertas
 ├── requirements.txt                   # Dependências do projeto
@@ -181,10 +182,20 @@ Prefixo: `/api/v1`. Lista completa e interativa em `/docs`.
 | Área | Endpoints |
 |---|---|
 | Auth | `POST /auth/login`, `GET /auth/me`, `POST /auth/logout`, `POST /auth/password/{forgot,otp/resend,otp/verify,reset}` |
-| Veículo | `GET /vehicles/{id}`, `GET /vehicles/{id}/status`, `POST /vehicles/{id}/{connect,disconnect}` |
+| Veículo | `GET /vehicles`, `GET /vehicles/{id}`, `GET /vehicles/{id}/status`, `POST /vehicles/{id}/{connect,disconnect}` |
 | Telemetria | `GET /vehicles/{id}/telemetry/latest`, `POST /vehicles/{id}/readings`, `GET /vehicles/{id}/temperature/history` |
 | Alertas | `GET /vehicles/{id}/alerts/summary`, `GET /vehicles/{id}/alerts`, `POST /vehicles/{id}/alerts` |
 | Diagnóstico | `GET /vehicles/{id}/diagnostics`, `POST /vehicles/{id}/diagnostics` |
+
+## Integração com o frontend
+
+O frontend (`cmda-personal-frontend`) consome esta API por HTTP, sempre passando pelo `apiCall` de `js/api.js`.
+
+- **`GET /vehicles`** devolve a lista de veículos do usuário do token (usa `VeiculoRepository.list_by_usuario`). O front chama logo depois do login para descobrir o `id` do veículo e guardar no `sessionStorage`; todas as outras rotas usam esse id em `/vehicles/{id}/...`.
+- **Formato:** tudo trafega em JSON. Os campos saem em **camelCase** (`accessToken`, `dataHora`, `tabelaAlertas`) por causa do `CamelModel` em `app/schemas/common.py`; o código Python continua em snake_case. Datas saem em UTC sem fuso (`2026-10-05T14:30:00`).
+- **Autenticação:** o front manda `Authorization: Bearer <token>` em toda requisição. Token inválido, expirado ou revogado no logout → `401`.
+- **Erros:** regras de negócio respondem `{"error": "mensagem"}` com o status certo (`401`, `403`, `404`, `409`). Erros de validação do payload (Pydantic) saem no formato padrão do FastAPI, `422` com `{"detail": [...]}`.
+- **CORS:** configurado em `app/main.py` pela variável `CORS_ORIGINS`. Com `*` (padrão de dev) qualquer origem pode chamar; para fixar o front, use ex.: `CORS_ORIGINS=http://127.0.0.1:5500,http://localhost:5500`. Como o token vai no header (e não em cookie), não é preciso `allow_credentials`.
 
 ## Decisões de design (trade-offs assumidos pelo prazo da Fase 01)
 
