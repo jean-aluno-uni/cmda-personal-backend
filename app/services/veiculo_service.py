@@ -9,6 +9,9 @@ class VeiculoService:
         self.db = db
         self.repo = VeiculoRepository(db)
 
+    def listar_do_usuario(self, usuario_id: int) -> list[Veiculo]:
+        return self.repo.list_by_usuario(usuario_id)
+
     def connect(self, veiculo: Veiculo) -> Veiculo:
         veiculo = self.repo.set_conectado(veiculo, True)
         self.db.commit()
