@@ -1,6 +1,6 @@
-# CLAUDE.md — CMDA Personal (backend)
+# Regras de contribuição — CMDA Personal (backend)
 
-Regras do grupo para quem (pessoa ou IA) mexer neste repositório. O front fica em `cmda-personal-frontend` e consome esta API.
+Regras do grupo para quem mexer neste repositório. O front fica em `cmda-personal-frontend` e consome esta API.
 
 ## Stack e como rodar
 
