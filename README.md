@@ -2,7 +2,7 @@
 
 API do backend do **CMDA Personal** (Central de Mapeamento de Desempenho Automotivo), desenvolvida na Fase 01 do 6º período do Projeto Integrador. Implementa autenticação, regras de negócio e persistência de dados para o monitoramento veicular via OBD2/ELM327.
 
-Esta API é desacoplada de qualquer cliente específico: hoje serve o frontend web mockado do projeto, e foi desenhada para futuramente servir também o app mobile (Flutter), um painel administrativo web e um simulador de leituras de sensor, sem necessidade de reescrita.
+Esta API é desacoplada de qualquer cliente específico: hoje serve o frontend web do projeto, integrado na Fase 02, e foi desenhada para futuramente servir também o app mobile (Flutter) e um simulador de leituras de sensor, sem necessidade de reescrita.
 
 ## Estrutura de arquivos
 
