@@ -50,7 +50,7 @@ Esta API é desacoplada de qualquer cliente específico: hoje serve o frontend w
 │   │   ├── diagnostico.py
 │   │   ├── auth.py
 │   │   └── common.py
-│   ├── services/                      # Regras de negócio (RN-001 a RN-012)
+│   ├── services/                      # Regras de negócio (RN-001 a RN-013)
 │   │   ├── auth_service.py
 │   │   ├── veiculo_service.py
 │   │   ├── telemetria_service.py
@@ -68,7 +68,8 @@ Esta API é desacoplada de qualquer cliente específico: hoje serve o frontend w
 │   ├── test_vehicles_ownership.py     # Regra de posse de veículo (RN-004/RN-011)
 │   ├── test_vehicles_list.py          # GET /vehicles (só veículos do usuário logado)
 │   ├── test_telemetry.py              # Telemetria e estado de conexão (RN-005)
-│   └── test_alerts.py                 # Fluxo de alertas
+│   ├── test_alerts.py                 # Fluxo de alertas
+│   └── test_faixas_leitura.py         # Alertas e diagnóstico gerados pela leitura (RN-013)
 ├── requirements.txt                   # Dependências do projeto
 ├── .env.example                       # Modelo de variáveis de ambiente
 └── README.md
@@ -89,7 +90,7 @@ Esta API é desacoplada de qualquer cliente específico: hoje serve o frontend w
 
 ```
 router (app/api/v1)     -> validação HTTP, autenticação, ownership de veículo
-  -> service (app/services)  -> regras de negócio (RN-001 a RN-012)
+  -> service (app/services)  -> regras de negócio (RN-001 a RN-013)
     -> repository (app/repositories) -> acesso a dados (SQLAlchemy puro)
       -> model (app/models)  -> mapeamento ORM das tabelas
 ```
@@ -156,13 +157,35 @@ uvicorn app.main:app --reload
 
 Acesse a documentação interativa em **http://127.0.0.1:8000/docs**.
 
+Para o aplicativo mobile acessar a API pelo celular, rode escutando na rede e libere a porta 8000 no firewall do Windows:
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+No app, informe o endereço `http://<ip-do-notebook>:8000/api/v1`. O IP aparece no comando `ipconfig`.
+
 ### 6. Rodar os testes
 
 ```bash
 pytest -v
 ```
 
-Os testes usam SQLite em memória (não precisam do MySQL rodando) e cobrem: login, fluxo completo de recuperação de senha (incluindo token de uso único), logout invalidando sessão, a regra de posse de veículo (RN-004/RN-011 — o caso mais citado na avaliação), telemetria respeitando o estado de conexão (RN-005) e o fluxo de alertas.
+Os testes usam SQLite em memória (não precisam do MySQL rodando) e cobrem: login, fluxo completo de recuperação de senha (incluindo token de uso único), logout invalidando sessão, a regra de posse de veículo (RN-004/RN-011 — o caso mais citado na avaliação), telemetria respeitando o estado de conexão (RN-005), o fluxo de alertas e os alertas e diagnósticos gerados a partir das leituras (RN-013).
+
+## Alertas e diagnóstico gerados pela leitura (RN-013)
+
+Cada leitura recebida em `POST /vehicles/{id}/readings` é comparada com a faixa de referência de cada indicador em `app/services/telemetria_service.py`. Quando um indicador sai da faixa, a API cria um alerta com a origem `Motor` ou `Bateria`. Enquanto o valor continua fora da faixa o alerta não se repete, e só volta a ser criado depois que o valor normaliza e sai de novo. Sempre que algum indicador muda de situação, a API grava um diagnóstico novo com valor, referência e a marcação de alerta de cada item.
+
+| Indicador | Faixa de referência |
+|---|---|
+| RPM | 600 a 4000 RPM |
+| Velocidade | até 120 km/h |
+| Temp. geral | até 110 °C |
+| Temp. óleo | até 120 °C |
+| Temp. líquido arrefecimento | até 105 °C |
+| Temp. ar admissão | até 45 °C |
+| Tensão da bateria | 12 a 15 V |
 
 ## Fluxo de recuperação de senha
 
@@ -188,6 +211,8 @@ Prefixo: `/api/v1`. Lista completa e interativa em `/docs`.
 | Diagnóstico | `GET /vehicles/{id}/diagnostics`, `POST /vehicles/{id}/diagnostics` |
 
 ## Integração com o frontend
+
+A mesma API atende o aplicativo Android [`cmda-personal-mobile`](https://github.com/jean-aluno-uni/cmda-personal-mobile), que lê o veículo por Bluetooth e envia as leituras em `POST /vehicles/{id}/readings`, e o [`cmda-personal-simulador`](https://github.com/jean-aluno-uni/cmda-personal-simulador), usado nas demonstrações.
 
 O frontend (`cmda-personal-frontend`) consome esta API por HTTP, sempre passando pelo `apiCall` de `js/api.js`.
 
