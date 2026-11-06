@@ -32,7 +32,7 @@ class LeituraRepository:
         stmt = (
             select(Leitura)
             .where(Leitura.veiculo_id == veiculo_id, Leitura.data_hora >= desde)
-            .order_by(Leitura.data_hora.asc())
+            .order_by(Leitura.data_hora.desc())
             .limit(limite)
         )
-        return list(self.db.execute(stmt).scalars().all())
+        return list(reversed(self.db.execute(stmt).scalars().all()))

@@ -62,7 +62,6 @@ class TelemetriaService:
 
     def _avaliar_faixas(self, veiculo_id: int, anterior, leitura) -> None:
         itens = []
-        mudou = anterior is None
         for campo, indicador, origem, minimo, maximo, unidade in _FAIXAS:
             valor = getattr(leitura, campo)
             situacao = _situacao(valor, minimo, maximo)
@@ -70,16 +69,14 @@ class TelemetriaService:
                 continue
             situacao_anterior = _situacao(getattr(anterior, campo), minimo, maximo) if anterior else None
             referencia = _referencia(minimo, maximo, unidade)
-            if situacao != situacao_anterior:
-                mudou = True
-                if situacao != "normal":
-                    AlertaRepository(self.db).create(veiculo_id, {
-                        "origem": origem,
-                        "titulo": f"{indicador} {situacao} do esperado",
-                        "descricao": f"{indicador} em {_numero(valor)} {unidade}, referência {referencia}",
-                        "nivel": "high",
-                        "data_hora": leitura.data_hora,
-                    })
+            if situacao != situacao_anterior and situacao != "normal":
+                AlertaRepository(self.db).create(veiculo_id, {
+                    "origem": origem,
+                    "titulo": f"{indicador} {situacao} do esperado",
+                    "descricao": f"{indicador} em {_numero(valor)} {unidade}, referência {referencia}",
+                    "nivel": "high",
+                    "data_hora": leitura.data_hora,
+                })
             itens.append({
                 "indicador": indicador,
                 "valor": f"{_numero(valor)} {unidade}",
@@ -87,7 +84,7 @@ class TelemetriaService:
                 "referencia": referencia,
                 "alerta": situacao != "normal",
             })
-        if mudou and itens:
+        if itens:
             DiagnosticoRepository(self.db).create(veiculo_id, leitura.data_hora, itens)
 
     def obter_ultima(self, veiculo: Veiculo) -> TelemetriaLatestOut:

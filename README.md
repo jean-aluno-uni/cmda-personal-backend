@@ -175,7 +175,7 @@ Os testes usam SQLite em memória (não precisam do MySQL rodando) e cobrem: log
 
 ## Alertas e diagnóstico gerados pela leitura (RN-013)
 
-Cada leitura recebida em `POST /vehicles/{id}/readings` é comparada com a faixa de referência de cada indicador em `app/services/telemetria_service.py`. Quando um indicador sai da faixa, a API cria um alerta com a origem `Motor` ou `Bateria`. Enquanto o valor continua fora da faixa o alerta não se repete, e só volta a ser criado depois que o valor normaliza e sai de novo. Sempre que algum indicador muda de situação, a API grava um diagnóstico novo com valor, referência e a marcação de alerta de cada item.
+Cada leitura recebida em `POST /vehicles/{id}/readings` é comparada com a faixa de referência de cada indicador em `app/services/telemetria_service.py`. Quando um indicador sai da faixa, a API cria um alerta com a origem `Motor` ou `Bateria`. Enquanto o valor continua fora da faixa o alerta não se repete, e só volta a ser criado depois que o valor normaliza e sai de novo. A cada leitura a API também grava um diagnóstico novo com valor, referência e a marcação de alerta de cada item, e as telas mostram sempre o mais recente.
 
 | Indicador | Faixa de referência |
 |---|---|
