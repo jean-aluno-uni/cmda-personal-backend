@@ -157,13 +157,20 @@ uvicorn app.main:app --reload
 
 Acesse a documentação interativa em **http://127.0.0.1:8000/docs**.
 
-Para o aplicativo mobile acessar a API pelo celular, rode escutando na rede e libere a porta 8000 no firewall do Windows:
+Para o aplicativo mobile acessar a API pelo celular, rode escutando na rede:
 
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-No app, informe o endereço `http://<ip-do-notebook>:8000/api/v1`. O IP aparece no comando `ipconfig`.
+E libere a porta 8000 no firewall do Windows, rodando uma vez no PowerShell como administrador:
+
+```bash
+Get-NetFirewallRule -DisplayName "python.exe" | Where-Object Action -eq Block | Disable-NetFirewallRule
+New-NetFirewallRule -DisplayName "CMDA API 8000" -Direction Inbound -Protocol TCP -LocalPort 8000 -Action Allow
+```
+
+No app, informe o endereço `http://<ip-do-notebook>:8000/api/v1`. O IP aparece no comando `ipconfig`. O passo a passo completo da demonstração, com o simulador e o app, está no [roteiro do cmda-personal-mobile](https://github.com/jean-aluno-uni/cmda-personal-mobile#roteiro-completo-da-demonstração).
 
 ### 6. Rodar os testes
 
