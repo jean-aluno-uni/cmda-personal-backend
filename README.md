@@ -179,7 +179,7 @@ Cada leitura recebida em `POST /vehicles/{id}/readings` é comparada com a faixa
 
 | Indicador | Faixa de referência |
 |---|---|
-| RPM | 600 a 4000 RPM |
+| RPM | 750 a 3000 RPM |
 | Velocidade | até 120 km/h |
 | Temp. geral | até 110 °C |
 | Temp. óleo | até 120 °C |

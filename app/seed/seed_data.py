@@ -119,8 +119,8 @@ def run() -> None:
         veiculo_demo = get_or_create_veiculo(
             db,
             usuario_demo,
-            marca="Fiat",
-            modelo="Argo",
+            marca="Hyundai",
+            modelo="HB20",
             ano=2022,
             placa="DEMO1A23",
             combustivel="Flex",
@@ -135,8 +135,8 @@ def run() -> None:
         get_or_create_veiculo(
             db,
             outro_usuario,
-            marca="Hyundai",
-            modelo="HB20",
+            marca="Fiat",
+            modelo="Argo",
             ano=2021,
             placa="OUTR0B99",
             combustivel="Flex",

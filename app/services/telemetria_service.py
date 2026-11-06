@@ -16,7 +16,7 @@ _RANGE_PARA_TIMEDELTA = {
 }
 
 _FAIXAS = [
-    ("rpm", "RPM", "Motor", 600, 4000, "RPM"),
+    ("rpm", "RPM", "Motor", 750, 3000, "RPM"),
     ("velocidade_kmh", "Velocidade", "Motor", None, 120, "km/h"),
     ("temp_motor_c", "Temp. geral", "Motor", None, 110, "°C"),
     ("temp_oleo_c", "Temp. óleo", "Motor", None, 120, "°C"),
